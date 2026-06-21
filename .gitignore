@@ -1,0 +1,13 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+
+# rendered demo artifacts (regenerable)
+output/
+
+# weather pipeline artifacts
+weather/data/
+weather/prior_latest.json
