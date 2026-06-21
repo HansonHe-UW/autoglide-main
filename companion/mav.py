@@ -127,6 +127,44 @@ def upload_hotspot_mission(m, takeoff_alt, hotspot, cruise_alt):
     return ack is not None and ack.type == mavutil.mavlink.MAV_MISSION_ACCEPTED
 
 
+def upload_goto_mission(m, hotspot, cruise_alt):
+    """Re-target while already airborne: home, NAV_WAYPOINT@hotspot,
+    NAV_LOITER_UNLIM@hotspot (no takeoff). Used for cross-country hops after the
+    first. Caller should set mode AUTO and current waypoint to 1."""
+    hl, ho = hotspot
+    items = [
+        (0, mavutil.mavlink.MAV_FRAME_GLOBAL, mavutil.mavlink.MAV_CMD_NAV_WAYPOINT,
+         0, 0, 0, 0, 0.0, 0.0, 0.0),
+        (1, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+         mavutil.mavlink.MAV_CMD_NAV_WAYPOINT, 0, 0, 0, 0, hl, ho, cruise_alt),
+        (2, mavutil.mavlink.MAV_FRAME_GLOBAL_RELATIVE_ALT,
+         mavutil.mavlink.MAV_CMD_NAV_LOITER_UNLIM, 0, 0, 0, 0, hl, ho, cruise_alt),
+    ]
+    m.mav.mission_count_send(m.target_system, m.target_component,
+                             len(items), mavutil.mavlink.MAV_MISSION_TYPE_MISSION)
+    sent = set()
+    deadline = time.time() + 30
+    while len(sent) < len(items) and time.time() < deadline:
+        req = m.recv_match(type=["MISSION_REQUEST", "MISSION_REQUEST_INT", "MISSION_ACK"],
+                           blocking=True, timeout=5)
+        if req is None:
+            continue
+        if req.get_type() == "MISSION_ACK":
+            break
+        seq, frame, cmd, p1, p2, p3, p4, lat, lon, alt = items[req.seq]
+        m.mav.mission_item_int_send(
+            m.target_system, m.target_component, seq, frame, cmd, 0, 1,
+            p1, p2, p3, p4, int(lat * 1e7), int(lon * 1e7), alt,
+            mavutil.mavlink.MAV_MISSION_TYPE_MISSION)
+        sent.add(req.seq)
+    ack = m.recv_match(type="MISSION_ACK", blocking=True, timeout=10)
+    return ack is not None and ack.type == mavutil.mavlink.MAV_MISSION_ACCEPTED
+
+
+def set_current_wp(m, seq):
+    m.mav.mission_set_current_send(m.target_system, m.target_component, seq)
+
+
 def goto_global(m, lat, lon, alt_rel, want_ack=False):
     """Command a GUIDED target position via MAV_CMD_DO_REPOSITION.
 

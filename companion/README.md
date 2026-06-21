@@ -85,13 +85,24 @@ wind → drift):
 python -m weather.soaringmeteo_prior        # fetch today's run -> prior JSON
 ```
 
-The companion's selection runs straight on it — real weather → best reachable
-hotspot at a real lat/lon. (The SITL fly-out still uses `make_sitl_prior.py`,
-since SITL's synthetic thermal sits at a fixed offset; on real hardware the
-companion flies the SoaringMeteo coordinates directly.)
+`weather/openmeteo_prior.py` does the same from Open-Meteo's Deardorff W\*, so both
+sources feed one prior entry point. The companion's selection runs straight on it —
+real weather → best reachable hotspot at a real lat/lon. (The SITL fly-out still
+uses `make_sitl_prior.py`, since SITL's synthetic thermal sits at a fixed offset;
+on real hardware the companion flies the forecast coordinates directly.)
 
-## Next
+## Cross-country relay (multi-hotspot)
 
-- Multi-hotspot hop: after climbing out, pick the next candidate toward a goal
-  (the `BeliefMap` already supports this) and repeat — cross-country under
-  weather guidance.
+`weather_guided_xc.py` hops between forecast thermals toward a goal: pick the best
+reachable candidate → fly there → hand off → **confirm** (climbed) or **disconfirm**
+(no lift) in the belief map → hop to the next.
+
+```bash
+companion/run_xc_demo.sh
+```
+
+SITL has a single synthetic thermal, so only the aligned hop climbs; the others
+demonstrate the fly → search → disconfirm → re-target machinery. Example run:
+`hop 1 CONFIRMED (+40 m), hop 2 disconfirmed, hop 3 disconfirmed`. A true
+multi-climb cross-country is best watched in the **dashboard** on real weather
+(`python -m dashboard.app` → 🌤 use weather), or on hardware.
