@@ -7,9 +7,10 @@
 # Usage: sitl/run_weather_truth_demo.sh [lat] [lon]
 set -uo pipefail
 
-VENV=/Users/momo/Downloads/dd/soar-venv/bin/python
+SOAR_VENV="${SOAR_VENV:-$(cd "$(dirname "$0")/.." && pwd)/../soar-venv}"
+VENV="$SOAR_VENV/bin/python"
 SYS=python3
-ARDUPILOT=/Users/momo/Downloads/dd/ardupilot
+ARDUPILOT="${ARDUPILOT_DIR:-$(cd "$(dirname "$0")/.." && pwd)/../ardupilot}"
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 LAT="${1:-43.47}"
 LON="${2:--80.54}"

@@ -5,8 +5,9 @@
 # Usage: sitl/run_demo.sh
 set -uo pipefail
 
-VENV=/Users/momo/Downloads/dd/soar-venv/bin/python
-ARDUPILOT=/Users/momo/Downloads/dd/ardupilot
+SOAR_VENV="${SOAR_VENV:-$(cd "$(dirname "$0")/.." && pwd)/../soar-venv}"
+VENV="$SOAR_VENV/bin/python"
+ARDUPILOT="${ARDUPILOT_DIR:-$(cd "$(dirname "$0")/.." && pwd)/../ardupilot}"
 MISSION="$ARDUPILOT/Tools/autotest/ArduPlane_Tests/Soaring/CMAC-soar.txt"
 HERE="$(cd "$(dirname "$0")" && pwd)"
 SITL_LOG=/tmp/sitl_soaring.log

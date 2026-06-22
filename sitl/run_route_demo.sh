@@ -3,9 +3,10 @@
 # planner, then fly that exact .waypoints mission in SITL with ArduSoar on.
 set -uo pipefail
 
-VENV=/Users/momo/Downloads/dd/soar-venv/bin/python
+SOAR_VENV="${SOAR_VENV:-$(cd "$(dirname "$0")/.." && pwd)/../soar-venv}"
+VENV="$SOAR_VENV/bin/python"
 SYS=python3
-ARDUPILOT=/Users/momo/Downloads/dd/ardupilot
+ARDUPILOT="${ARDUPILOT_DIR:-$(cd "$(dirname "$0")/.." && pwd)/../ardupilot}"
 REPO="$(cd "$(dirname "$0")/.." && pwd)"
 
 pkill -9 -f "sim_vehicle.py" 2>/dev/null
