@@ -39,6 +39,7 @@ so thermals can be placed at arbitrary (forecast) positions. Apply with
 sitl/run_weather_truth_demo.sh [lat] [lon]    # plan from real weather + fly it
 sitl/plot_weather_truth.py                     # render weather_truth_demo.png
 sitl/run_route_demo.sh                         # validate a planner route flies (single local thermal)
+sitl/run_terrain_demo.sh [lat] [lon]           # terrain-trigger hotspots -> thermals there -> fly
 ```
 
 ## Milestone 1 — reproduce ArduSoar
