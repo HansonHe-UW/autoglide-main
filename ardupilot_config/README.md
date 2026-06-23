@@ -10,8 +10,27 @@ wiring and the basic airframe tune (roll/pitch/TECS) are separate.
 ```
 # MAVProxy
 param load ardusoar_glider.parm
+param load ardusoar_failsafe.parm      # safety — load this too before flying
 # Mission Planner: Config > Full Parameter List > Load > (write) > reboot
 ```
+
+## Failsafe / safety — required before autonomous flight
+
+`ardusoar_failsafe.parm` is **mandatory before any autonomous soaring**. All enum
+values are verified against the ArduPlane source. It sets:
+
+- **Geofence** — `FENCE_ALT_MAX` (airspace ceiling) + `FENCE_RADIUS` (max range),
+  action **RTL**. Set both to your field/airspace.
+- **Link-loss** — sustained RC loss → **RTL** (`FS_LONG_ACTN=1`); a brief glitch in
+  AUTO keeps the mission. With ELRS/CRSF, set the **receiver** to "no pulses" on
+  failsafe (no PWM throttle channel to gate). `FS_GCS_ENABL=0` so losing the **Pi
+  companion** does not failsafe the aircraft — the FC + ArduSoar are autonomous.
+- **Battery** — `BATT_LOW_*`→RTL, `BATT_CRT_*`→Land. **Thresholds depend on your
+  LiPo cell count — recompute** (~3.5 V/cell low, ~3.3 V/cell critical).
+- **Motor kill** — assign an RC switch (`RCx_OPTION=31`) for a manual motor stop.
+
+Test on the bench before flight: kill the TX → confirm it RTLs; pull the fence in →
+confirm it turns back; sag the battery → confirm the low/critical actions fire.
 
 ## What's a starting value vs what to tune
 
